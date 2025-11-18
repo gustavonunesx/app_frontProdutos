@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ListarCategoria from "./pages/categoria/ListarCategoria";
-import CriarCategoria from "./pages/categoria/CriarCategoria";
+import ListarCategoria from "./pages/categoria/ListaCategoria";
+import CriarCategoria from "./pages/categoria/NovaCategoria";
 import EditarCategoria from "./pages/categoria/EditarCategoria";
 import ExcluirCategoria from "./pages/categoria/ExcluirCategoria";
 
-import ListarProduto from "./pages/produto/ListarProduto";
-import CriarProduto from "./pages/produto/CriarProduto";
+import ListarProduto from "./pages/produto/ListaProduto";
+import CriarProduto from "./pages/produto/NovoProduto";
 import EditarProduto from "./pages/produto/EditarProduto";
 import ExcluirProduto from "./pages/produto/ExcluirProduto";
 
