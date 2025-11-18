@@ -1,24 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ListarCategoria from "./pages/categoria/ListarCategoria";
+import CriarCategoria from "./pages/categoria/CriarCategoria";
+import EditarCategoria from "./pages/categoria/EditarCategoria";
+import ExcluirCategoria from "./pages/categoria/ExcluirCategoria";
+
+import ListarProduto from "./pages/produto/ListarProduto";
+import CriarProduto from "./pages/produto/CriarProduto";
+import EditarProduto from "./pages/produto/EditarProduto";
+import ExcluirProduto from "./pages/produto/ExcluirProduto";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        {/* Categorias */}
+        <Route path="/categorias" element={<ListarCategoria />} />
+        <Route path="/categorias/novo" element={<CriarCategoria />} />
+        <Route path="/categorias/editar/:id" element={<EditarCategoria />} />
+        <Route path="/categorias/excluir/:id" element={<ExcluirCategoria />} />
+
+        {/* Produtos */}
+        <Route path="/produtos" element={<ListarProduto />} />
+        <Route path="/produtos/novo" element={<CriarProduto />} />
+        <Route path="/produtos/editar/:id" element={<EditarProduto />} />
+        <Route path="/produtos/excluir/:id" element={<ExcluirProduto />} />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 
