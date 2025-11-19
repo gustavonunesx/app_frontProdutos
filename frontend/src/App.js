@@ -1,34 +1,32 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ListarCategoria from "./pages/categoria/ListaCategoria";
-import CriarCategoria from "./pages/categoria/NovaCategoria";
-import EditarCategoria from "./pages/categoria/EditarCategoria";
-import ExcluirCategoria from "./pages/categoria/ExcluirCategoria";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import CategoriaList from './pages/categorias/CategoriaList';
+import CategoriaForm from './pages/categorias/CategoriaForm';
+import ProdutoList from './pages/produtos/ProdutoList';
+import ProdutoForm from './pages/produtos/ProdutoForm';
 
-import ListarProduto from "./pages/produto/ListaProduto";
-import CriarProduto from "./pages/produto/NovoProduto";
-import EditarProduto from "./pages/produto/EditarProduto";
-import ExcluirProduto from "./pages/produto/ExcluirProduto";
-
-function App() {
+export default function App(){
   return (
-    <BrowserRouter>
-      <Routes>
+    <div className="app-root">
+      <Sidebar />
+      <div className="main">
+        <Header />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Navigate to="/categorias" replace />} />
 
-        {/* Categorias */}
-        <Route path="/categorias" element={<ListarCategoria />} />
-        <Route path="/categorias/novo" element={<CriarCategoria />} />
-        <Route path="/categorias/editar/:id" element={<EditarCategoria />} />
-        <Route path="/categorias/excluir/:id" element={<ExcluirCategoria />} />
+            <Route path="/categorias" element={<CategoriaList />} />
+            <Route path="/categorias/novo" element={<CategoriaForm />} />
+            <Route path="/categorias/editar/:id" element={<CategoriaForm />} />
 
-        {/* Produtos */}
-        <Route path="/produtos" element={<ListarProduto />} />
-        <Route path="/produtos/novo" element={<CriarProduto />} />
-        <Route path="/produtos/editar/:id" element={<EditarProduto />} />
-        <Route path="/produtos/excluir/:id" element={<ExcluirProduto />} />
-
-      </Routes>
-    </BrowserRouter>
+            <Route path="/produtos" element={<ProdutoList />} />
+            <Route path="/produtos/novo" element={<ProdutoForm />} />
+            <Route path="/produtos/editar/:id" element={<ProdutoForm />} />
+          </Routes>
+        </div>
+      </div>
+    </div>
   );
 }
-
-export default App;
