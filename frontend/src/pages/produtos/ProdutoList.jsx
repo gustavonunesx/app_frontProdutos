@@ -41,7 +41,7 @@ export default function ProdutoList(){
                 <td>{p.id}</td>
                 <td>{p.nome}</td>
                 <td>{p.preco}</td>
-                <td>{p.categoria_nome || p.categoriaId || '-'}</td>
+                <td>{p.categoria?.nome ?? '-'}</td>
                 <td>
                   <button className="btn" onClick={()=>navigate(`/produtos/editar/${p.id}`)}>Editar</button>
                   <button className="btn btn-danger" onClick={()=>handleDelete(p.id)} style={{marginLeft:8}}>Excluir</button>

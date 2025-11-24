@@ -102,7 +102,7 @@ public class CategoriaDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro ao inserir produto: " + categoria.getNome());
+            System.out.println("Erro ao inserir categoria: " + categoria.getNome());
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
@@ -121,7 +121,7 @@ public class CategoriaDAO {
             PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
             stmt.setString(1, categoria.getNome());
-            stmt.setLong(4, categoria.getId());
+            stmt.setLong(2, categoria.getId());
             
             int linhasAfetadas = stmt.executeUpdate();
             System.out.println("Categoria iD: " + categoria.getId() + " Atualizado");

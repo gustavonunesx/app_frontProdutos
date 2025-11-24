@@ -9,6 +9,7 @@ export default function ProdutoForm(){
   const [preco, setPreco] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
   const [categorias, setCategorias] = useState([]);
+  const [estoque, setEstoque] = useState('');
 
   useEffect(()=>{ fetchCategorias(); if(id) load(); },[id]);
 
@@ -18,14 +19,20 @@ export default function ProdutoForm(){
       const p = await ProdutoAPI.get(id);
       setNome(p.nome || '');
       setPreco(p.preco ?? '');
-      setCategoriaId(p.categoriaId ?? '');
+      setCategoriaId(p.categoria?.id ?? '');
     }catch(e){ alert(e.message); }
   }
 
   async function handleSubmit(e){
     e.preventDefault();
     try{
-      const data = { nome, preco: Number(preco), categoriaId: Number(categoriaId) };
+      const data = {
+        nome,
+        preco: Number(preco),
+        estoque: Number(estoque),
+        categoria: categoriaId ? { id: Number(categoriaId) } : null
+      };
+
       if(id) await ProdutoAPI.update(id,data); else await ProdutoAPI.create(data);
       navigate('/produtos');
     }catch(e){ alert(e.message); }
@@ -37,6 +44,11 @@ export default function ProdutoForm(){
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <input value={nome} onChange={e=>setNome(e.target.value)} placeholder="Nome" required />
+        </div>
+        <div className="form-row">
+          <input
+            value={estoque} onChange={e => setEstoque(e.target.value)} placeholder="Estoque" required
+          />
         </div>
         <div className="form-row">
           <input value={preco} onChange={e=>setPreco(e.target.value)} placeholder="Preço" required />

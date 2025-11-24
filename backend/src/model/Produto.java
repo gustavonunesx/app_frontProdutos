@@ -6,6 +6,7 @@ public class Produto {
     private String nome;
     private double preco;
     private int estoque;
+    private Categoria categoria;
 
     // Construtores (vazio, sem o id, completo)
 
@@ -20,11 +21,12 @@ public class Produto {
         this.estoque = estoque;
     }
 
-    public Produto(Long id, String nome, double preco, int estoque) {
+    public Produto(Long id, String nome, double preco, int estoque, Categoria categoria) {
         this.id = id;
         this.nome = nome;
         this.preco = preco;
         this.estoque = estoque;
+        this.categoria = categoria;
     }
 
     //Getters and Setters 
@@ -36,6 +38,14 @@ public class Produto {
     public void setId(Long id) {
         this.id = id;
     }
+    public Categoria getCategoria() {
+        return categoria; 
+    }
+
+    public void setCategoria(Categoria categoria) { 
+        this.categoria = categoria;
+    }
+
 
     public String getNome() {
         return nome;
