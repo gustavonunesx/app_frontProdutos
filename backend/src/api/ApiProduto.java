@@ -2,6 +2,8 @@ package api;
 
 import static spark.Spark.*;
 
+import java.util.List;
+
 import com.google.gson.Gson;
 
 import dao.CategoriaDAO;
@@ -28,7 +30,14 @@ public class ApiProduto {
         });
 
         // ROTAS PRODUTOS
-        get("/produtos", (req, res) -> gson.toJson(dao.buscarTodos()));
+        get("/produtos", (req, res) -> {
+            res.type("application/json");
+            
+            // Busca produtos do banco de dados
+            List<Produto> produtos = dao.buscarTodos();
+            
+            return new Gson().toJson(produtos);
+        });
 
         get("/produtos/:id", (req, res) -> {
             try {

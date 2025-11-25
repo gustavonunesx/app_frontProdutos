@@ -20,11 +20,10 @@ CREATE TABLE produtos (
     FOREIGN KEY (categoria_id) REFERENCES categoria(id)
 );
 
-INSERT INTO produtos (nome, preco, estoque, categoria_id)
-VALUES ('SmartPhone', 1500.00, 25, 1);
-
-
 INSERT INTO categoria (nome)
 VALUES ('Eletrônicos'), ('Periféricos'), ('Informática');
 
+
+INSERT INTO produtos (nome, preco, estoque, categoria_id)
+VALUES ('SmartPhone', 1500.00, 25, 1);
 
