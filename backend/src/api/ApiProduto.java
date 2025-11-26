@@ -5,6 +5,7 @@ import static spark.Spark.*;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import dao.CategoriaDAO;
 import dao.ProdutoDAO;
@@ -20,6 +21,28 @@ public class ApiProduto {
 
     private static final String APPLICATION_JSON = "application/json";
 
+    // ============================================
+    // =============== CORS ========================
+    // ============================================
+    private static void enableCORS() {
+
+        options("/*", (request, response) -> {
+            String reqHeaders = request.headers("Access-Control-Request-Headers");
+            if (reqHeaders != null) response.header("Access-Control-Allow-Headers", reqHeaders);
+
+            String reqMethod = request.headers("Access-Control-Request-Method");
+            if (reqMethod != null) response.header("Access-Control-Allow-Methods", reqMethod);
+
+            return "OK";
+        });
+
+        before((request, response) -> {
+            response.header("Access-Control-Allow-Origin", "*");
+            response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        });
+    }
+    
     public static void main(String[] args) {
 
         port(4567);
@@ -33,18 +56,27 @@ public class ApiProduto {
         get("/produtos", (req, res) -> {
             res.type("application/json");
             
-            // Busca produtos do banco de dados
+            System.out.println("📡 GET /produtos - Buscando todos os produtos...");
+            
             List<Produto> produtos = dao.buscarTodos();
             
-            return new Gson().toJson(produtos);
+            System.out.println("✅ Retornando " + produtos.size() + " produtos");
+            
+            return gson.toJson(produtos);
         });
 
         get("/produtos/:id", (req, res) -> {
             try {
                 Long id = Long.parseLong(req.params(":id"));
+                
+                System.out.println("📡 GET /produtos/" + id);
+                
                 Produto p = dao.buscarPorId(id);
 
-                if (p != null) return gson.toJson(p);
+                if (p != null) {
+                    System.out.println("✅ Produto encontrado: " + p.getNome());
+                    return gson.toJson(p);
+                }
 
                 res.status(404);
                 return "{\"mensagem\": \"Produto não encontrado\"}";
@@ -56,19 +88,46 @@ public class ApiProduto {
 
         post("/produtos", (req, res) -> {
             try {
-                Produto novo = gson.fromJson(req.body(), Produto.class);
+                System.out.println("📡 POST /produtos");
+                System.out.println("📦 Body recebido: " + req.body());
+                
+                // ✅ Parse manual para lidar com categoria_id
+                JsonObject json = gson.fromJson(req.body(), JsonObject.class);
+                
+                Produto novo = new Produto();
+                novo.setNome(json.get("nome").getAsString());
+                novo.setPreco(json.get("preco").getAsDouble());
+                novo.setEstoque(json.get("estoque").getAsInt());
+                
+                // ✅ Lidar com categoria_id (vindo do frontend)
+                if (json.has("categoria_id") && !json.get("categoria_id").isJsonNull()) {
+                    Long categoriaId = json.get("categoria_id").getAsLong();
+                    Categoria categoria = new Categoria();
+                    categoria.setId(categoriaId);
+                    novo.setCategoria(categoria);
+                }
+                
                 dao.inserir(novo);
+                
+                System.out.println("✅ Produto criado: " + novo.getNome() + " (ID: " + novo.getId() + ")");
+                
                 res.status(201);
                 return gson.toJson(novo);
             } catch (Exception e) {
+                System.out.println("❌ Erro ao cadastrar: " + e.getMessage());
+                e.printStackTrace();
                 res.status(500);
-                return "{\"mensagem\": \"Erro ao cadastrar produto\"}";
+                return "{\"mensagem\": \"Erro ao cadastrar produto: " + e.getMessage() + "\"}";
             }
         });
 
         put("/produtos/:id", (req, res) -> {
             try {
                 Long id = Long.parseLong(req.params(":id"));
+                
+                System.out.println("📡 PUT /produtos/" + id);
+                System.out.println("📦 Body recebido: " + req.body());
+                
                 Produto existente = dao.buscarPorId(id);
 
                 if (existente == null) {
@@ -76,21 +135,42 @@ public class ApiProduto {
                     return "{\"mensagem\": \"Produto não encontrado\"}";
                 }
 
-                Produto atualizado = gson.fromJson(req.body(), Produto.class);
-                atualizado.setId(id);
-                dao.atualizar(atualizado);
+                // ✅ Parse manual para lidar com categoria_id
+                JsonObject json = gson.fromJson(req.body(), JsonObject.class);
+                
+                existente.setNome(json.get("nome").getAsString());
+                existente.setPreco(json.get("preco").getAsDouble());
+                existente.setEstoque(json.get("estoque").getAsInt());
+                
+                // ✅ Lidar com categoria_id (vindo do frontend)
+                if (json.has("categoria_id") && !json.get("categoria_id").isJsonNull()) {
+                    Long categoriaId = json.get("categoria_id").getAsLong();
+                    Categoria categoria = new Categoria();
+                    categoria.setId(categoriaId);
+                    existente.setCategoria(categoria);
+                } else {
+                    existente.setCategoria(null);
+                }
+                
+                dao.atualizar(existente);
+                
+                System.out.println("✅ Produto atualizado: " + existente.getNome());
 
-                return gson.toJson(atualizado);
+                return gson.toJson(existente);
 
             } catch (Exception e) {
+                System.out.println("❌ Erro ao atualizar: " + e.getMessage());
+                e.printStackTrace();
                 res.status(400);
-                return "{\"mensagem\": \"Erro ao atualizar\"}";
+                return "{\"mensagem\": \"Erro ao atualizar: " + e.getMessage() + "\"}";
             }
         });
 
         delete("/produtos/:id", (req, res) -> {
             try {
                 Long id = Long.parseLong(req.params(":id"));
+
+                System.out.println("📡 DELETE /produtos/" + id);
 
                 Produto existente = dao.buscarPorId(id);
                 if (existente == null) {
@@ -99,16 +179,25 @@ public class ApiProduto {
                 }
 
                 dao.deletar(id);
+                
+                System.out.println("✅ Produto deletado");
+                
                 res.status(204);
                 return "";
             } catch (Exception e) {
+                System.out.println("❌ Erro ao deletar: " + e.getMessage());
                 res.status(400);
                 return "{\"mensagem\": \"Erro ao deletar\"}";
             }
         });
 
         // ROTAS CATEGORIAS
-        get("/categorias", (req, res) -> gson.toJson(categoriaDao.buscarTodos()));
+        get("/categorias", (req, res) -> {
+            System.out.println("📡 GET /categorias");
+            List<Categoria> categorias = categoriaDao.buscarTodos();
+            System.out.println("✅ Retornando " + categorias.size() + " categorias");
+            return gson.toJson(categorias);
+        });
 
         get("/categorias/:id", (req, res) -> {
             try {
@@ -177,27 +266,7 @@ public class ApiProduto {
                 return "{\"mensagem\": \"Erro ao excluir categoria\"}";
             }
         });
-    }
-
-    // ============================================
-    // =============== CORS ========================
-    // ============================================
-    private static void enableCORS() {
-
-        options("/*", (request, response) -> {
-            String reqHeaders = request.headers("Access-Control-Request-Headers");
-            if (reqHeaders != null) response.header("Access-Control-Allow-Headers", reqHeaders);
-
-            String reqMethod = request.headers("Access-Control-Request-Method");
-            if (reqMethod != null) response.header("Access-Control-Allow-Methods", reqMethod);
-
-            return "OK";
-        });
-
-        before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", "*");
-            response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            response.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        });
+        
+        System.out.println("🚀 Servidor rodando na porta 4567");
     }
 }
